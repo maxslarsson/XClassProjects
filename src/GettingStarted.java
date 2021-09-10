@@ -58,6 +58,31 @@ public class GettingStarted {
         trail.addPoint(4, 3);
         trail.addPoint(8, 9);
         trail.addPoint(16, 18);
+
+        System.out.println("\nExercise:");
+
+        // Step 1
+        Polynomial gx = new Polynomial(new double[]{5, 0, 0, 0, 4}); // pass in the coefficients
+        System.out.println("1: g(x) = " + gx);
+
+        // Step 2
+
+        // THIS WAS DONE BY REVERSE ENGINEERING THE CODE
+        Polynomial vx = new Polynomial(new double[]{1, 2, 3});
+
+        System.out.println("2: v(2) = " + vx.eval(2));
+
+        // Step 3
+        System.out.println("3: f(x) + v(x) = " + fx+vx);
+
+        // Step 4
+        System.out.println("4: " + vx.getCoefficientAtTerm(1));
+
+        // Step 5
+
+        for (double coeff : vx.getCoefficientArray()) {
+            System.out.println(coeff);
+        }
     }
 
     /**
