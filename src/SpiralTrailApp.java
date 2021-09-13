@@ -1,7 +1,12 @@
 import org.opensourcephysics.controls.AbstractSimulation;
 import org.opensourcephysics.controls.SimulationControl;
 import org.opensourcephysics.display.Circle;
+import org.opensourcephysics.display.DrawableShape;
+import org.opensourcephysics.display.Trail;
 import org.opensourcephysics.frames.PlotFrame;
+
+import java.util.Arrays;
+import java.util.stream.IntStream;
 
 /***
  * MovingBallApp is an extension of AbstractSimulation (an abstract class).
@@ -16,21 +21,13 @@ import org.opensourcephysics.frames.PlotFrame;
  *
  * You also need a main method to run the simulation (scroll to bottom).
  */
-public class MovingBallApp extends AbstractSimulation {
+public class SpiralTrailApp extends AbstractSimulation {
     // Set up global variables.
-    PlotFrame plotFrame = new PlotFrame("x", "meters from ground", "Moving Ball");
-    Circle circle = new Circle();
-    double totalTime;
-
-    /**
-     * Technically optional, but the simulation won't work without it.
-     * Adds options to the Control Panel.
-     */
-    @Override
-    public void reset() {
-        control.setValue("Starting Y position", 100);
-        control.setValue("Starting X position", 0);
-    }
+    PlotFrame plotFrame = new PlotFrame("x", "meters from ground", "Spiral Trail");
+    Trail trail = new Trail();
+    int totalTime;
+    int[] xMoves = new int[]{-1,  0, 1, 1, 0, 0, -1, -1, -1,  0,  0,  0, 1, 1, 1, 1, 0, 0, 0, 0, -1, -1, -1, -1, -1};
+    int[] yMoves = new int[]{ 0, -1, 0, 0, 1, 1,  0,  0,  0, -1, -1, -1, 0, 0, 0, 0, 1, 1, 1, 1,  0,  0,  0,  0, 0};
 
     /**
      * Technically optional, but the simulation won't work without it.
@@ -39,18 +36,23 @@ public class MovingBallApp extends AbstractSimulation {
      */
     @Override
     public void initialize() {
-        // Get information from the control panel.
-        double startingY = control.getDouble("Starting Y position");
-        double startingX = control.getDouble("Starting X position");
-        circle.setY(startingY);
-        circle.setX(startingX);
+        DrawableShape rect = DrawableShape.createRectangle(3, 3, 4, 4);
+        plotFrame.addDrawable(rect);
+        plotFrame.addDrawable(trail);
 
-        // Instead of appending x, y coordinates to plot frame,
-        //    add the Circle which maintains its own x, y.
-        plotFrame.addDrawable(circle);
+        // putting dots along the width
+        for (int i = 1; i < 6; i++) {
+            // putting dots along the height
+            for (int j = 1; j < 6; j++) {
+                Circle circle = new Circle();
+                circle.setX(i);
+                circle.setY(j);
+                plotFrame.addDrawable(circle);
+            }
+        }
 
         // Configure plot frame
-        plotFrame.setPreferredMinMax(startingX, startingY, startingX, startingY); // Scale of graph.
+        plotFrame.setPreferredMinMax(0, 6, 0, 6); // Scale of graph.
         plotFrame.setDefaultCloseOperation(3); // Make it so x'ing out of the graph stops the program.
         plotFrame.setVisible(true); // Required to show plot frame.
     }
@@ -61,27 +63,28 @@ public class MovingBallApp extends AbstractSimulation {
      */
     public void doStep() {
         // Change y. (It will re-draw itself.)
-        circle.setY(circle.getY() - 1);
-        circle.setX(circle.getX() + 1);
+
+        assert xMoves.length == yMoves.length;
+
+        if (totalTime < xMoves.length) {
+            int[] xNew = Arrays.copyOfRange(xMoves, 0, (int) totalTime);
+            int xPos = IntStream.of(xNew).sum();
+
+            int[] yNew = Arrays.copyOfRange(yMoves, 0, (int) totalTime);
+            int yPos = IntStream.of(yNew).sum();
+
+            // 3 comes from it being the center point
+            trail.addPoint(3 + xPos, 3 + yPos);
+        }
 
         totalTime++;
     }
-
-    /**
-     * Optional method, tied to Stop button.
-     */
-    @Override
-    public void stop(){
-        System.out.println(totalTime/10 + " secs to travel "
-                + Math.abs(control.getDouble("Starting Y position") - circle.getY())+ " meters.");
-    }
-
 
     /**
      * Required main method, runs the simulation.
      * @param args
      */
     public static void main(String[] args) {
-        SimulationControl.createApp(new MovingBallApp());
+        SimulationControl.createApp(new SpiralTrailApp());
     }
 }

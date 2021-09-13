@@ -3,6 +3,7 @@ import org.opensourcephysics.controls.SimulationControl;
 import org.opensourcephysics.display.Circle;
 import org.opensourcephysics.frames.PlotFrame;
 
+
 /***
  * MovingBallApp is an extension of AbstractSimulation (an abstract class).
  *
@@ -16,10 +17,10 @@ import org.opensourcephysics.frames.PlotFrame;
  *
  * You also need a main method to run the simulation (scroll to bottom).
  */
-public class MovingBallApp extends AbstractSimulation {
+public class RandomWalkApp extends AbstractSimulation {
     // Set up global variables.
-    PlotFrame plotFrame = new PlotFrame("x", "meters from ground", "Moving Ball");
-    Circle circle = new Circle();
+    PlotFrame plotFrame = new PlotFrame("x", "meters from ground", "Random Walk");
+    Circle[] circles = new Circle[50];
     double totalTime;
 
     /**
@@ -28,7 +29,7 @@ public class MovingBallApp extends AbstractSimulation {
      */
     @Override
     public void reset() {
-        control.setValue("Starting Y position", 100);
+        control.setValue("Starting Y position", 0);
         control.setValue("Starting X position", 0);
     }
 
@@ -42,15 +43,19 @@ public class MovingBallApp extends AbstractSimulation {
         // Get information from the control panel.
         double startingY = control.getDouble("Starting Y position");
         double startingX = control.getDouble("Starting X position");
-        circle.setY(startingY);
-        circle.setX(startingX);
+
+        for (int i = 0; i < circles.length; i++) {
+            circles[i] = new Circle();
+            circles[i].setX(startingX);
+            circles[i].setY(startingY);
+            plotFrame.addDrawable(circles[i]);
+        }
 
         // Instead of appending x, y coordinates to plot frame,
         //    add the Circle which maintains its own x, y.
-        plotFrame.addDrawable(circle);
 
         // Configure plot frame
-        plotFrame.setPreferredMinMax(startingX, startingY, startingX, startingY); // Scale of graph.
+        plotFrame.setPreferredMinMax(-50, 50, -50, 50); // Scale of graph.
         plotFrame.setDefaultCloseOperation(3); // Make it so x'ing out of the graph stops the program.
         plotFrame.setVisible(true); // Required to show plot frame.
     }
@@ -60,28 +65,29 @@ public class MovingBallApp extends AbstractSimulation {
      * The doStep method is also called when the Step button is pressed.
      */
     public void doStep() {
-        // Change y. (It will re-draw itself.)
-        circle.setY(circle.getY() - 1);
-        circle.setX(circle.getX() + 1);
+        for (Circle circle : circles) {
+            int[] possibleMoveX = new int[]{-1, 0, 1};
+            int[] possibleMoveY = new int[]{-1, 0, 1};
+
+            // nextInt is normally exclusive of the top value,
+            // so add 1 to make it inclusive
+
+            int randomMoveX = (int) Math.floor(Math.random() * possibleMoveX.length);
+            int randomMoveY = (int) Math.floor(Math.random() * possibleMoveY.length);
+
+            // Change y. (It will re-draw itself.)
+            circle.setX(circle.getX() + possibleMoveX[randomMoveX]);
+            circle.setY(circle.getY() + possibleMoveY[randomMoveY]);
+        }
 
         totalTime++;
     }
-
-    /**
-     * Optional method, tied to Stop button.
-     */
-    @Override
-    public void stop(){
-        System.out.println(totalTime/10 + " secs to travel "
-                + Math.abs(control.getDouble("Starting Y position") - circle.getY())+ " meters.");
-    }
-
 
     /**
      * Required main method, runs the simulation.
      * @param args
      */
     public static void main(String[] args) {
-        SimulationControl.createApp(new MovingBallApp());
+        SimulationControl.createApp(new RandomWalkApp());
     }
 }
