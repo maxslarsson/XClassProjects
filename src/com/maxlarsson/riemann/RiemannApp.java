@@ -10,5 +10,6 @@ public class RiemannApp {
         leftHandPlot.plotPolynomial();
         leftHandPlot.plotAccFnc();
         leftHandPlot.drawRiemannSlices();
+        System.out.println(leftHandPlot.getIntervalArea());
     }
 }

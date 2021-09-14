@@ -74,10 +74,10 @@ public abstract class AbstractRiemann {
     void plotAccFnc() {
         int i = 0;
         double runningSum = 0;
+        accFnTrail.addPoint(xLower, 0);
         for (double interval : arrayOfIntervals()) {
-            System.out.println(interval);
-            runningSum += Math.abs(interval);
-            accFnTrail.addPoint(xLower + (i * calculateDeltaX()), runningSum);
+            runningSum += interval;
+            accFnTrail.addPoint(xLower + (i * calculateDeltaX()) + 1, runningSum);
             i++;
         }
     }
@@ -85,7 +85,10 @@ public abstract class AbstractRiemann {
     void plotPolynomial() {
         double step = 0.1;
 
+        // TODO: What if this is a function that will never reach the width (e.g.) goes straight up? Well this becomes an infinite loop. Make it so that does NOT happen
         for (double x = -width; x <= width; x += step) {
+            double y = poly.eval(x);
+
             polyTrail.addPoint(x, poly.eval(x));
         }
     }
