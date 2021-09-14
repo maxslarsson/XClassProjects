@@ -3,6 +3,7 @@ import org.dalton.polyfun.Polynomial;
 import org.opensourcephysics.display.Trail;
 import org.opensourcephysics.frames.PlotFrame;
 
+import javax.swing.*;
 import java.awt.Color;
 
 public class GettingStarted {
@@ -27,7 +28,7 @@ public class GettingStarted {
         // Configure the plot frame.
         plotFrame.setSize(400, 400); // window size
         plotFrame.setPreferredMinMax(0, 10, 0, 15); // x and y ranges
-        plotFrame.setDefaultCloseOperation(3);  // if you want closing the graph to end the program
+        plotFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  // if you want closing the graph to end the program
         plotFrame.setVisible(true); // need this to show the graph, it is false by default
 
         // Plotting lines

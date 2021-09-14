@@ -3,6 +3,8 @@ import org.opensourcephysics.controls.SimulationControl;
 import org.opensourcephysics.display.Circle;
 import org.opensourcephysics.frames.PlotFrame;
 
+import javax.swing.*;
+
 
 /***
  * MovingBallApp is an extension of AbstractSimulation (an abstract class).
@@ -55,8 +57,8 @@ public class RandomWalkApp extends AbstractSimulation {
         //    add the Circle which maintains its own x, y.
 
         // Configure plot frame
-        plotFrame.setPreferredMinMax(-50, 50, -50, 50); // Scale of graph.
-        plotFrame.setDefaultCloseOperation(3); // Make it so x'ing out of the graph stops the program.
+        plotFrame.setPreferredMinMax(-20, 20, -20, 20); // Scale of graph.
+        plotFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE); // Make it so x'ing out of the graph stops the program.
         plotFrame.setVisible(true); // Required to show plot frame.
     }
 
@@ -85,7 +87,6 @@ public class RandomWalkApp extends AbstractSimulation {
 
     /**
      * Required main method, runs the simulation.
-     * @param args
      */
     public static void main(String[] args) {
         SimulationControl.createApp(new RandomWalkApp());
