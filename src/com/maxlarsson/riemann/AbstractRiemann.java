@@ -18,6 +18,14 @@ public abstract class AbstractRiemann {
     int width = 50;
     int height = 50;
 
+    /**
+     * Construct a new instance of the class
+     *
+     * @param polynomial The polynomial to use in the calculation of the area.
+     * @param xLower The lower bound of where to find the area.
+     * @param xUpper The upper bound of where to find the area.
+     * @param subintervals The number of triangles to use to find the area of the polynomial.
+     */
     AbstractRiemann(Polynomial polynomial, double xLower, double xUpper, int subintervals) {
         this.poly = polynomial;
         this.xLower = Math.min(xLower, xUpper);
@@ -27,10 +35,18 @@ public abstract class AbstractRiemann {
         configPlotFrame();
     }
 
+    /**
+     * Calculate the width of a single slice.
+     *
+     * @return A double of the delta
+     */
     double calculateDeltaX() {
         return (xUpper - xLower) / subintervals;
     }
 
+    /**
+     * Set the properties of the plot frame such as size, visibility, default close operation, and the preferred min and max of the x axis and the y axis.
+     */
     void configPlotFrame() {
         // Configure the plot frame.
         plotFrame.setSize(400, 400); // window size
@@ -45,6 +61,9 @@ public abstract class AbstractRiemann {
         accFnTrail.color = Color.GREEN;   // optional specify color
     }
 
+    /**
+     * Draw all the slices for this poly that are in the interval.
+     */
     void drawRiemannSlices() {
         double delta = calculateDeltaX();
         for (double i = xLower; i <= xUpper; i += delta) {
@@ -52,18 +71,28 @@ public abstract class AbstractRiemann {
         }
     }
 
+    /**
+     * Calculate the area of each subinterval.
+     *
+     * @return A double array with the area of each subinterval.
+     */
     double[] arrayOfIntervals() {
-        double[] intervals = new double[subintervals + 1];
+        double[] intervals = new double[subintervals];
         double delta = calculateDeltaX();
         int index = 0;
-        for (double i = xLower; i <= xUpper; i += delta) {
+        for (double i = xLower; i < xUpper; i += delta) {
             intervals[index] = getSubintervalArea(i, i+delta);
             index++;
         }
         return intervals;
     }
 
-    double getIntervalArea() {
+    /**
+     * Estimate the area under the poly using Riemann sums.
+     *
+     * @return The estimated area under the curve
+     */
+    public double getIntervalArea() {
         double sum = 0;
         for (double interval : arrayOfIntervals()) {
             sum += interval;
@@ -71,6 +100,9 @@ public abstract class AbstractRiemann {
         return sum;
     }
 
+    /**
+     * Draw the accumulation function.
+     */
     void plotAccFnc() {
         int i = 0;
         double runningSum = 0;
@@ -82,6 +114,9 @@ public abstract class AbstractRiemann {
         }
     }
 
+    /**
+     * Draw the poly on the plot frame.
+     */
     void plotPolynomial() {
         double step = 0.1;
 
@@ -93,6 +128,20 @@ public abstract class AbstractRiemann {
         }
     }
 
-    abstract double getSubintervalArea(double leftBorder, double rightBorder);
+    /**
+     * Estimate the area under the poly for the given slice, or subinterval. This is abstract because the implementation depends on which Riemann Rule you use.
+     *
+     * @param leftBorder The left x-coordinate of the slice
+     * @param rightBorder The right x-coordinate of the slice
+     * @return The area of this slice.
+     */
+    public abstract double getSubintervalArea(double leftBorder, double rightBorder);
+
+    /**
+     * Draw a single slice, or subinterval, under the poly. This is abstract because the implementation depends on which Riemann Rule you use.
+     *
+     * @param leftBorder The left x-coordinate of the slice
+     * @param rightBorder The right x-coordinate of the slice
+     */
     abstract void drawSlice(double leftBorder, double rightBorder);
 }
