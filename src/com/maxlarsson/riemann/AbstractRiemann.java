@@ -79,10 +79,9 @@ public abstract class AbstractRiemann {
     double[] arrayOfIntervals() {
         double[] intervals = new double[subintervals];
         double delta = calculateDeltaX();
-        int index = 0;
-        for (double i = xLower; i < xUpper; i += delta) {
-            intervals[index] = getSubintervalArea(i, i+delta);
-            index++;
+        for (int i = 0; i < subintervals; i++) {
+            double realI = xLower + delta*i;
+            intervals[i] = getSubintervalArea(realI, realI+delta);
         }
         return intervals;
     }
