@@ -6,7 +6,7 @@ public class RiemannApp {
     public static void main(String[] args) {
         Polynomial poly = new Polynomial(new double[]{0, -4, 0.5});
 
-        double xLower = 3;
+        double xLower = -7;
         double xUpper = 13;
         int subintervals = 10;
 

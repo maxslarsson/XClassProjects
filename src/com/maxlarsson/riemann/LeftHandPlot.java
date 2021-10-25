@@ -2,10 +2,16 @@ package com.maxlarsson.riemann;
 
 import org.dalton.polyfun.Polynomial;
 import org.opensourcephysics.display.DrawableShape;
+import org.opensourcephysics.display.Trail;
+import org.opensourcephysics.frames.PlotFrame;
 
 public class LeftHandPlot extends AbstractRiemann {
     public LeftHandPlot(Polynomial polynomial, double xLower, double xUpper, int subintervals) {
         super(polynomial, xLower, xUpper, subintervals);
+    }
+
+    public LeftHandPlot(Polynomial polynomial, double xLower, double xUpper, int subintervals, PlotFrame plotFrame) {
+        super(polynomial, xLower, xUpper, subintervals, plotFrame);
     }
 
     @Override

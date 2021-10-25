@@ -1,14 +1,19 @@
 package com.maxlarsson.riemann;
 
 import org.dalton.polyfun.Polynomial;
-import org.opensourcephysics.display.Drawable;
 import org.opensourcephysics.display.DrawableShape;
+import org.opensourcephysics.display.Trail;
+import org.opensourcephysics.frames.PlotFrame;
 
 import java.awt.geom.Path2D;
 
 public class TrapezoidPlot extends AbstractRiemann {
     public TrapezoidPlot(Polynomial polynomial, double xLower, double xUpper, int subintervals) {
         super(polynomial, xLower, xUpper, subintervals);
+    }
+
+    public TrapezoidPlot(Polynomial polynomial, double xLower, double xUpper, int subintervals, PlotFrame plotFrame) {
+        super(polynomial, xLower, xUpper, subintervals, plotFrame);
     }
 
     @Override

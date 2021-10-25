@@ -6,9 +6,11 @@ import org.opensourcephysics.frames.PlotFrame;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 
 public abstract class AbstractRiemann {
-    PlotFrame plotFrame = new PlotFrame("x", "y", "Riemann Sums");
+    PlotFrame plotFrame;
     Polynomial poly;
     Trail polyTrail = new Trail();
     Trail accFnTrail = new Trail();
@@ -28,11 +30,29 @@ public abstract class AbstractRiemann {
      */
     AbstractRiemann(Polynomial polynomial, double xLower, double xUpper, int subintervals) {
         this.poly = polynomial;
-        this.xLower = Math.min(xLower, xUpper);
-        this.xUpper = Math.max(xLower, xUpper);
+        this.xLower = xLower;
+        this.xUpper = xUpper;
+//        this.xLower = Math.min(xLower, xUpper);
+//        this.xUpper = Math.max(xLower, xUpper);
         this.subintervals = subintervals;
+        this.plotFrame = new PlotFrame("x", "y", "Riemann Sums");
 
+        // Only configPlotFrame if plotFrame is not passed in
         configPlotFrame();
+
+        addTrailsToPlotFrame();
+    }
+
+    AbstractRiemann(Polynomial polynomial, double xLower, double xUpper, int subintervals, PlotFrame plotFrame) {
+        this.poly = polynomial;
+        this.xLower = xLower;
+        this.xUpper = xUpper;
+//        this.xLower = Math.min(xLower, xUpper);
+//        this.xUpper = Math.max(xLower, xUpper);
+        this.subintervals = subintervals;
+        this.plotFrame = plotFrame;
+
+        addTrailsToPlotFrame();
     }
 
     /**
@@ -53,7 +73,12 @@ public abstract class AbstractRiemann {
         plotFrame.setPreferredMinMax(-width, width, -height, height); // x and y ranges
         plotFrame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);  // if you want closing the graph to end the program
         plotFrame.setVisible(true); // need this to show the graph, it is false by default
+    }
 
+    /**
+     * Add the polyTrail and accFnTrail to the plotFrame
+     */
+    void addTrailsToPlotFrame() {
         plotFrame.addDrawable(polyTrail); // add the trail to the plot frame
         polyTrail.color = Color.RED;   // optional specify color
 
@@ -66,8 +91,12 @@ public abstract class AbstractRiemann {
      */
     void drawRiemannSlices() {
         double delta = calculateDeltaX();
-        for (double i = xLower; i <= xUpper; i += delta) {
-            drawSlice(i, i+delta);
+
+        int stopCondition = (int) ((xUpper - xLower)/delta);
+        for (int i = 0; i < stopCondition; i++) {
+            double realI = xLower + delta*i;
+
+            drawSlice(realI, realI+delta);
         }
     }
 
@@ -102,14 +131,42 @@ public abstract class AbstractRiemann {
     /**
      * Draw the accumulation function.
      */
+    // TODO: Fix accumulation function so that it starts at x=0, not xLower
+    // Ig now it will not work with the arrayOfIntervals I have
     void plotAccFnc() {
-        int i = 0;
-        double runningSum = 0;
-        accFnTrail.addPoint(xLower, 0);
-        for (double interval : arrayOfIntervals()) {
-            runningSum += interval;
-            accFnTrail.addPoint(xLower + (i * calculateDeltaX()) + 1, runningSum);
-            i++;
+        if (xLower != 0 && xUpper != 0) {
+            try {
+                Class[] cArg = new Class[5];
+                cArg[0] = Polynomial.class;
+                cArg[1] = double.class;
+                cArg[2] = double.class;
+                cArg[3] = int.class;
+                cArg[4] = PlotFrame.class;
+                Constructor<? extends AbstractRiemann> c = this.getClass().getConstructor(cArg);
+                if ((xLower > 0 && xUpper > 0) || (xLower < 0 && xUpper < 0)) {
+                    AbstractRiemann self = c.newInstance(poly, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
+                    self.plotAccFnc();
+                } else if ((xLower < 0 && xUpper > 0) || (xLower > 0 && xUpper < 0)) {
+                    AbstractRiemann leftHandSide = c.newInstance(poly, 0, Math.min(xLower, xUpper), subintervals, plotFrame);
+                    leftHandSide.plotAccFnc();
+                    AbstractRiemann rightHandSide = c.newInstance(poly, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
+                    rightHandSide.plotAccFnc();
+                } else {
+                    System.err.println("ERROR! This else clause should NOT be able to be reached...");
+                }
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                e.printStackTrace();
+            }
+        } else {
+            int i = 1;
+            double runningSum = 0;
+            accFnTrail.addPoint(xLower, 0);
+            for (double interval : arrayOfIntervals()) {
+                System.out.println(interval);
+                runningSum += interval;
+                accFnTrail.addPoint(xLower + (i * calculateDeltaX()), runningSum);
+                i++;
+            }
         }
     }
 
@@ -119,11 +176,13 @@ public abstract class AbstractRiemann {
     void plotPolynomial() {
         double step = 0.1;
 
-        // TODO: What if this is a function that will never reach the width (e.g.) goes straight up? Well this becomes an infinite loop. Make it so that does NOT happen
-        for (double x = -width; x <= width; x += step) {
+//        for (double i = -width; i < width; i += step) {
+        int stopCondition = (int) (width * 2 / step);
+        for (int i = 0; i < stopCondition; i++) {
+            double x = -width + step*i;
             double y = poly.eval(x);
 
-            polyTrail.addPoint(x, poly.eval(x));
+            polyTrail.addPoint(x, y);
         }
     }
 
