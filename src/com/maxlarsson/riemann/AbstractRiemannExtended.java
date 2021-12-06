@@ -8,10 +8,11 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.DoubleUnaryOperator;
 
-public abstract class AbstractRiemann {
+public abstract class AbstractRiemannExtended {
     PlotFrame plotFrame;
-    Polynomial poly;
+    DoubleUnaryOperator function;
     Trail polyTrail = new Trail();
     Trail accFnTrail = new Trail();
     double xLower;
@@ -23,13 +24,13 @@ public abstract class AbstractRiemann {
     /**
      * Construct a new instance of the class
      *
-     * @param polynomial The polynomial to use in the calculation of the area.
+     * @param function The expression to use in the calculation of the area.
      * @param xLower The lower bound of where to find the area.
      * @param xUpper The upper bound of where to find the area.
      * @param subintervals The number of triangles to use to find the area of the polynomial.
      */
-    AbstractRiemann(Polynomial polynomial, double xLower, double xUpper, int subintervals) {
-        this.poly = polynomial;
+    AbstractRiemannExtended(DoubleUnaryOperator function, double xLower, double xUpper, int subintervals) {
+        this.function = function;
         this.xLower = xLower;
         this.xUpper = xUpper;
 //        this.xLower = Math.min(xLower, xUpper);
@@ -43,8 +44,8 @@ public abstract class AbstractRiemann {
         addTrailsToPlotFrame();
     }
 
-    AbstractRiemann(Polynomial polynomial, double xLower, double xUpper, int subintervals, PlotFrame plotFrame) {
-        this.poly = polynomial;
+    AbstractRiemannExtended(DoubleUnaryOperator function, double xLower, double xUpper, int subintervals, PlotFrame plotFrame) {
+        this.function = function;
         this.xLower = xLower;
         this.xUpper = xUpper;
 //        this.xLower = Math.min(xLower, xUpper);
@@ -142,14 +143,14 @@ public abstract class AbstractRiemann {
                 cArg[2] = double.class;
                 cArg[3] = int.class;
                 cArg[4] = PlotFrame.class;
-                Constructor<? extends AbstractRiemann> c = this.getClass().getConstructor(cArg);
+                Constructor<? extends AbstractRiemannExtended> c = this.getClass().getConstructor(cArg);
                 if ((xLower > 0 && xUpper > 0) || (xLower < 0 && xUpper < 0)) {
-                    AbstractRiemann self = c.newInstance(poly, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
+                    AbstractRiemannExtended self = c.newInstance(function, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
                     self.plotAccFnc();
                 } else if ((xLower < 0 && xUpper > 0) || (xLower > 0 && xUpper < 0)) {
-                    AbstractRiemann leftHandSide = c.newInstance(poly, 0, Math.min(xLower, xUpper), subintervals, plotFrame);
+                    AbstractRiemannExtended leftHandSide = c.newInstance(function, 0, Math.min(xLower, xUpper), subintervals, plotFrame);
                     leftHandSide.plotAccFnc();
-                    AbstractRiemann rightHandSide = c.newInstance(poly, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
+                    AbstractRiemannExtended rightHandSide = c.newInstance(function, 0, Math.max(xLower, xUpper), subintervals, plotFrame);
                     rightHandSide.plotAccFnc();
                 } else {
                     System.err.println("ERROR! This else clause should NOT be able to be reached...");
@@ -179,7 +180,7 @@ public abstract class AbstractRiemann {
         int stopCondition = (int) (width * 2 / step);
         for (int i = 0; i < stopCondition; i++) {
             double x = -width + step*i;
-            double y = poly.eval(x);
+            double y = function.applyAsDouble(x);
 
             polyTrail.addPoint(x, y);
         }
