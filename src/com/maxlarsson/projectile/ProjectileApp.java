@@ -8,12 +8,17 @@ import javax.swing.*;
 import java.awt.*;
 
 public class ProjectileApp extends AbstractSimulation {
-    PlotFrame plotFrame = new PlotFrame("x", "y", "Projectile App");
-    Particle particleWithoutAirResistance = new Particle(0, 0, 50,  8, 10, 1);
-    Particle particleWithAirResistance = new Particle(0, 0, 50, 8, 10, 1);
+    PlotFrame plotFrame;
+    Particle particleWithoutAirResistance;
+    Particle particleWithAirResistance;
 
     @Override
     public void initialize() {
+        plotFrame = new PlotFrame("x", "y", "Projectile App");
+
+        particleWithoutAirResistance = new Particle(0, 0, 50,  8, 10, 1);
+        particleWithAirResistance = new Particle(0, 0, 50, 8, 10, 1);
+
         plotFrame.addDrawable(particleWithAirResistance);
         plotFrame.addDrawable(particleWithoutAirResistance);
 
@@ -27,11 +32,13 @@ public class ProjectileApp extends AbstractSimulation {
 
     @Override
     protected void doStep() {
-        double deltaTime = 1.0/12.0;
+//        double deltaTime = 1.0/12.0;
+        double deltaTime = 0.05;
         double airpressure = 1.225;
 
         particleWithoutAirResistance.step(deltaTime);
         particleWithAirResistance.step(deltaTime, airpressure);
+        System.out.println(particleWithAirResistance.getX());
     }
 
     /**

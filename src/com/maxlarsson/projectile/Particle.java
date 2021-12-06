@@ -38,22 +38,22 @@ public class Particle extends Circle {
      * @param pressure The air or water pressure the particle is travelling through
      */
     public void step(double deltaTime, double pressure) {
-        double weight = mass * 9.8;
+        double weight = mass * -9.8;
 
         double dragConstant = 0.02;
         double crossSectionalArea = Math.PI * Math.pow(radius, 2);
-        double dragY = pressure * dragConstant * crossSectionalArea * Math.pow(vY, 2) / (2 * mass);
-        double dragX = pressure * dragConstant * crossSectionalArea * Math.pow(vX, 2) / (2 * mass);
+        double dragY = pressure * dragConstant * crossSectionalArea * Math.pow(vY, 2) / 2;
+        double dragX = pressure * dragConstant * crossSectionalArea * Math.pow(vX, 2) / 2;
 
-        double netForceY = dragY - weight;
+        double netForceY = dragY + weight;
 
-        y += vY * deltaTime;
-        x += vX * deltaTime;
+        aY = netForceY / mass;
+        aX = -dragX / mass;
 
         vY += aY * deltaTime;
         vX += aX * deltaTime;
 
-        aY = netForceY / mass;
-        aX = -dragX;
+        y += vY * deltaTime;
+        x += vX * deltaTime;
     }
 }

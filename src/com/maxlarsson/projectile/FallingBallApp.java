@@ -20,14 +20,6 @@ public class FallingBallApp extends AbstractSimulation {
     PlotFrame accelerationOverTimePlotFrame = new PlotFrame("seconds", "acc (m/s)²", "Acceleration over Time");
     Trail[] accelerationOverTimeTrails = new Trail[particles.length];
     long steps = 0;
-    double[] lastY = new double[particles.length];
-    double[] lastVelocities = new double[particles.length];
-
-//    @Override
-//    public void reset() {
-//        particleWithAirPressure.setY(0);
-//        particleWithoutAirPressure.setY(0);
-//    }
 
     @Override
     public void initialize() {
@@ -36,8 +28,6 @@ public class FallingBallApp extends AbstractSimulation {
         }
 
         for (int i = 0; i < particles.length; i++) {
-            lastY[i] = particles[i].getY();
-            lastVelocities[i] = 0;
             positionOverTimeTrails[i] = new Trail();
             velocityOverTimeTrails[i] = new Trail();
             accelerationOverTimeTrails[i] = new Trail();
@@ -82,26 +72,15 @@ public class FallingBallApp extends AbstractSimulation {
         double deltaTime = 1.0/4.0;
         double airpressure = 1.225;
 
-        if (particles[0].getY() > 0) {
-            particles[0].step(deltaTime);
-        }
-
-        if (particles[1].getY() > 0) {
-            particles[1].step(deltaTime, airpressure);
-        }
+        particles[0].step(deltaTime);
+        particles[1].step(deltaTime, airpressure);
 
         double x = steps * deltaTime;
 
         for (int i = 0; i < particles.length; i++) {
             positionOverTimeTrails[i].addPoint(x, particles[i].getY());
-
-            double velocity = (particles[i].getY() - lastY[i]) / deltaTime;
-            velocityOverTimeTrails[i].addPoint(x, velocity);
-            lastY[i] = particles[i].getY();
-
-            double accelerationSlope = (velocity - lastVelocities[i]) / deltaTime;
-            accelerationOverTimeTrails[i].addPoint(x, accelerationSlope);
-            lastVelocities[i] = velocity;
+            velocityOverTimeTrails[i].addPoint(x, particles[i].vY);
+            accelerationOverTimeTrails[i].addPoint(x, particles[i].aY);
         }
     }
 
