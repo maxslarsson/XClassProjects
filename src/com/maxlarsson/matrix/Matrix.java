@@ -3,11 +3,11 @@ package com.maxlarsson.matrix;
 public class Matrix {
     private final double[][] matrix;
 
-    Matrix() {
+    public Matrix() {
         this.matrix = new double[1][];
     }
 
-    Matrix(double[][] matrix) {
+    public Matrix(double[][] matrix) {
         int lengthOfFirstRow = matrix[0].length;
 
         for (double[] row : matrix) {
@@ -19,11 +19,11 @@ public class Matrix {
         this.matrix = matrix;
     }
 
-    Matrix(int rows, int columns) {
+    public Matrix(int rows, int columns) {
         this.matrix = new double[rows][columns];
     }
 
-    Matrix(int rows, int columns, double value) {
+    public Matrix(int rows, int columns, double value) {
         this.matrix = new double[rows][columns];
 
         for (int i = 0; i < rows; i++) {
@@ -38,7 +38,7 @@ public class Matrix {
      * @param n The number of rows and columns for the identity matrix
      * @return An identity matrix of size n by n
      */
-    static Matrix identity(int n) {
+    public static Matrix identity(int n) {
         Matrix matrix = new Matrix(n, n);
         for (int i = 0; i < n; i++) {
             matrix.setEntry(i, i, 1);
@@ -58,7 +58,7 @@ public class Matrix {
      * Return an augmented matrix, which is the matrix concatenated to the identity matrix.
      * @return This matrix concatenated to its identity matrix
      */
-    Matrix augment() {
+    public Matrix augment() {
         if (!this.isSquare()) {
             throw new IllegalStateException("You can only augment a square matrix");
         }
@@ -78,7 +78,7 @@ public class Matrix {
      * Get how many columns there are.
      * @return The number of columns
      */
-    int	getColumnCount() {
+    public int	getColumnCount() {
         return this.matrix[0].length;
     }
 
@@ -86,7 +86,7 @@ public class Matrix {
      * Get the matrix array.
      * @return The matrix array
      */
-    double[][] getMatrix() {
+    public double[][] getMatrix() {
         return this.matrix;
     }
 
@@ -94,7 +94,7 @@ public class Matrix {
      * Get how many rows there are.
      * @return The number of rows
      */
-    int getRowCount() {
+    public int getRowCount() {
         return this.matrix.length;
     }
 
@@ -104,7 +104,7 @@ public class Matrix {
      * @param column The column index
      * @return The value at those indices
      */
-    double getValueAt(int row, int column) {
+    public double getValueAt(int row, int column) {
         return this.matrix[row][column];
     }
 
@@ -112,7 +112,7 @@ public class Matrix {
      * Inverts a matrix.
      * @return An inverted matrix
      */
-    Matrix invert() {
+    public Matrix invert() {
         Matrix augmented_matrix = this.augment();
         Matrix reduced_row_matrix = augmented_matrix.rowReduce();
         Matrix inverted_matrix = new Matrix(reduced_row_matrix.getRowCount(), reduced_row_matrix.getColumnCount()/2);
@@ -131,7 +131,7 @@ public class Matrix {
      * @param destRow Add scalar * sourceRow to destRow and set destRow equal to the result
      * @return A new matrix with this operation performed
      */
-    Matrix linearCombRows(double scalar, int sourceRow, int destRow) {
+    public Matrix linearCombRows(double scalar, int sourceRow, int destRow) {
         Matrix result  = new Matrix(this.getMatrix());
 
         for (int i = 0; i < this.getColumnCount(); i++) {
@@ -146,7 +146,7 @@ public class Matrix {
      * @param matrix The matrix to add to this matrix
      * @return The new matrix of the sum of each element
      */
-    Matrix plus(Matrix matrix) {
+    public Matrix plus(Matrix matrix) {
         // Check that there are the same number of rows
         assert this.getRowCount() == matrix.getRowCount();
         // Check that there are the same number of columns
@@ -167,40 +167,33 @@ public class Matrix {
      * Row reduces a matrix.
      * @return A new matrix in row reduced form
      */
-    Matrix rowReduce() {
-        Matrix m = new Matrix(this.getMatrix());
-        int lead = 0;
+    public Matrix rowReduce() {
+        Matrix rowReducedMatrix = new Matrix(this.getMatrix());
 
-        for (int r = 0; r < this.getRowCount(); r++) {
-            if (this.getColumnCount() <= lead) {
-                return m;
-            }
-            int i = r;
-            while (m.getValueAt(i, lead) == 0) {
-                i++;
-                if (this.getRowCount() == i) {
-                    i = r;
-                    lead++;
-                    if (this.getColumnCount() == lead) {
-                        return m;
-                    }
+        for (int i = 0; i < this.getColumnCount() / 2; i++) {
+            // Make sure that the (i, i) pivot point is not 0
+            for (int j = i; rowReducedMatrix.getValueAt(j, i) == 0; j++) {
+                if (j >= this.getRowCount()) throw new IllegalStateException(String.format("Column %s is all zero", j));
+
+                if (rowReducedMatrix.getValueAt(j, i) != 0) {
+                    rowReducedMatrix = rowReducedMatrix.switchRows(j, i);
+                    break;
                 }
             }
-            if (i != r) {
-                m = this.switchRows(i, r);
-            }
-            m = this.scalarTimesRow(m.getValueAt(r, lead), r);
-            // Divide row r by M[r, lead]
+
+
+
+            // Scale the first term to be 1
+            rowReducedMatrix = rowReducedMatrix.scalarTimesRow(1/rowReducedMatrix.getValueAt(i, i), i);
+
+            // Make the REST of the column 0
             for (int j = 0; j < this.getRowCount(); j++) {
-                if (j != r) {
-                    m = this.linearCombRows(m.getValueAt(j, lead), r, j);
-                    //Subtract M[i, lead] multiplied by row r from row i
-                }
+                if (i == j) continue;
+                rowReducedMatrix = rowReducedMatrix.linearCombRows(-rowReducedMatrix.getValueAt(j, i), i, j);
             }
-            lead++;
         }
 
-        return m;
+        return rowReducedMatrix;
     }
 
     /**
@@ -209,7 +202,7 @@ public class Matrix {
      * @param row The index of the row to multiply with the scalar
      * @return The matrix with the row multiplied by the scalar
      */
-    Matrix scalarTimesRow(double scalar, int row) {
+    public Matrix scalarTimesRow(double scalar, int row) {
         Matrix result = new Matrix(this.getMatrix());
 
         for (int i = 0; i < this.getColumnCount(); i++) {
@@ -225,7 +218,7 @@ public class Matrix {
      * @param column The index of the column
      * @param value The value to put at (row, column)
      */
-    void setEntry(int row, int column, double value) {
+    public void setEntry(int row, int column, double value) {
         this.matrix[row][column] = value;
     }
 
@@ -235,7 +228,7 @@ public class Matrix {
      * @param secondrow The index of the second row
      * @return A new matrix with the two rows switched
      */
-    Matrix switchRows(int firstrow, int secondrow) {
+    public Matrix switchRows(int firstrow, int secondrow) {
         double[] firstrowInMatrix = this.matrix[firstrow];
         double[] secondrowInMatrix = this.matrix[secondrow];
 
@@ -257,7 +250,7 @@ public class Matrix {
      * @param matrix The matrix to multiply this matrix by
      * @return A new matrix, which is the dot product of this matrix and the matrix passed in as an argument
      */
-    Matrix times(Matrix matrix) {
+    public Matrix times(Matrix matrix) {
         if (this.getColumnCount() != matrix.getRowCount()) {
             throw new IllegalArgumentException("The number of columns in this matrix does not match the number of rows in the matrix argument");
         }
@@ -290,7 +283,7 @@ public class Matrix {
         StringBuilder toBeReturned = new StringBuilder();
         for (double[] row : this.matrix) {
             for (double value : row) {
-                toBeReturned.append(value);
+                toBeReturned.append(String.format("%.2f", value));
                 toBeReturned.append(" ");
             }
             toBeReturned.append("\n");
